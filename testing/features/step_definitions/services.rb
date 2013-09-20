@@ -1,4 +1,4 @@
-require_relative 'api/service'
+require_relative 'api/services'
 
 Given /^I have what I need$/ do
   steps %{
