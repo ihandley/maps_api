@@ -1,29 +1,91 @@
 require_relative 'api/services'
+require 'json'
+require 'test/unit'
 
-Given /^I have what I need$/ do
-  steps %{
-    When I have a NearbySearch object
-    When I have location coordinates
-    When I have a radius
-  }
+include Test::Unit::Assertions
+
+Given /^I have a NearbySearch object$/ do
+    @nearbySearch = NearbySearch.new
 end
 
-When /^I have a NearbySearch object$/ do
-  @nearbySearch = NearbySearch.new
+Given /^output (.*)$/ do |output|
+    @output = output
 end
 
-When /^I have location coordinates$/ do
-  @loc_coord = '40.274722,-111.727778'
+Given /^latitude (.*) and longitude (.*)$/ do |latitude, longitude|
+    # regular expression to validate the latitude (-90 - 90)
+    # ^(-?[1-8]?\d(?:\.\d{1,6})?|90(?:\.0{1-6})?)$
+    
+    # regular expression to validate the longitude (-180 - 180)
+    # ^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,6})?|180(?:\.0{1,6})?}$
+
+    @location = latitude+','+longitude
 end
 
-When /^I have a radius$/ do
-  @radius = '500'
+Given /^radius (.*) meters$/ do |radius|
+    @radius = radius
 end
 
-When /^I do a search$/ do
-  @nearbySearch.createRequest(@loc_coord, @radius)
+Given /^sensor (.*)$/ do |sensor|
+    @sensor = sensor
 end
 
-Then /^I will have a json file for my perusal$/ do
-  @response
+Given /^keyword (.*)$/ do |keyword|
+    @keyword = keyword
+end
+
+Given /^language (.*)$/ do |language|
+    @language = language
+end
+
+Given /^minimum price \$(\d+) and maximum price \$(\d+)$/ do |minPrice, maxPrice|
+    @minPrice = minPrice
+    @maxPrice = maxPrice
+end
+
+Given /^name (.*)$/ do |name|
+    @name = name
+end
+
+Given /^open now (.*)$/ do |openNow|
+    @openNow = openNow
+end
+
+Given /^rank by (.*)$/ do |rankBy|
+    @rankBy = rankBy
+end
+
+Given /^types (.*)$/ do |types|
+    @types = types
+end
+
+Given /^page token (.*)$/ do |pageToken|
+    @pageToken = pageToken
+end
+
+Given /^zagat selected (.*)$/ do |zagatSelected|
+    @zagatSelected = zagatSelected
+end
+
+When /^I execute the search$/ do
+    @nearbySearch.createRequest(
+        @output,
+        @location, 
+        @radius,
+        @sensor,
+        @keyword,
+        @language,
+        @minPrice,
+        @maxPrice,
+        @name,
+        @openNow,
+        @rankBy,
+        @types)
+#        @pageToken,
+#        @zagatSelected)
+    @response = JSON.parse @nearbySearch.response
+end
+
+Then /^I will get back a json file containing (.*)$/ do |cnt|
+    assert @response.key?('results')
 end
